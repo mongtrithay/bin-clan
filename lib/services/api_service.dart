@@ -102,4 +102,27 @@ class ApiService {
 
     throw Exception("Failed to fetch rewards");
   }
+
+  Future<List<PickupModel>> fetchPickupHistory() async {
+    final token = await _storageService.getToken(); // Retrieve token
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/pickup/history'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((item) => PickupModel.fromJson(item)).toList();
+      } else {
+        throw Exception("Failed to load pickup history");
+      }
+    } catch (e) {
+      throw Exception("Error: $e");
+    }
+  }
 }
