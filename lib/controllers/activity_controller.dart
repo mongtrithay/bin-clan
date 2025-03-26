@@ -1,5 +1,4 @@
 
-
 import 'package:binclan/models/activity_model.dart';
 import 'package:binclan/services/api_service.dart';
 

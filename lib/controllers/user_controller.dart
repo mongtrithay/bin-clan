@@ -2,7 +2,6 @@
 import 'package:binclan/bloc/user_bloc.dart';
 import 'package:binclan/models/user_model.dart';
 import 'package:binclan/services/api_service.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class UserController {
   final ApiService _apiService = ApiService();

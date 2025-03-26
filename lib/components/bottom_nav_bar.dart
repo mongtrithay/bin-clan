@@ -1,4 +1,5 @@
 import 'package:binclan/page/home.dart';
+import 'package:binclan/page/socail.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -24,7 +25,7 @@ class BottomNavBar extends StatelessWidget {
             Navigator.pushNamed(context, '/pickup-history');
             break;
           case 2:
-            Navigator.pushNamed(context, '/green-social');
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SocialScreen(),));
             break;
           case 3:
             Navigator.pushNamed(context, '/profile');
