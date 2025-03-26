@@ -20,4 +20,6 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
   }
+
+  fetchPoints() {}
 }
