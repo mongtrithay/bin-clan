@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:binclan/components/bottom_nav_bar.dart';
-import 'package:binclan/services/api_services.dart'; // Ensure this path is correct
+import 'package:binclan/services/api_services.dart';
 
 class PickupFormPage extends StatefulWidget {
   const PickupFormPage({super.key});
@@ -10,18 +10,15 @@ class PickupFormPage extends StatefulWidget {
 }
 
 class _PickupFormPageState extends State<PickupFormPage> {
-  // Define the controllers for your form fields
   final TextEditingController dateController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  final TextEditingController estimatedWeightController = TextEditingController();  
+  final TextEditingController estimatedWeightController = TextEditingController();
   final TextEditingController otherRecurringController = TextEditingController();
 
   String? selectedWasteType;
   String? selectedRecurring;
 
-  // API function to schedule the pickup
+
   Future<void> schedulePickup() async {
-    // Ensure required fields are filled before proceeding
     if (dateController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select a date.")));
       return;
@@ -39,22 +36,16 @@ class _PickupFormPageState extends State<PickupFormPage> {
 
     try {
       await _submitPickupRequest();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Pickup Scheduled Successfully!")),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Pickup Scheduled Successfully!")));
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $error")),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $error")));
     }
   }
 
-  // Extract the API call to a separate method
   Future<void> _submitPickupRequest() async {
     final apiService = ApiService();
     await apiService.schedulePickup(
-      userId: "123456", // Change to dynamic user ID
+      userId: "123456",
       date: dateController.text,
       wasteTypes: [selectedWasteType ?? ""],
       estimateWeight: double.tryParse(estimatedWeightController.text) ?? 0,
@@ -73,7 +64,7 @@ class _PickupFormPageState extends State<PickupFormPage> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,11 +86,8 @@ class _PickupFormPageState extends State<PickupFormPage> {
             SizedBox(height: 10),
 
             _buildLabel("Weight/Volume"),
-            _buildTextField(weightController, "Enter your weight/volume"),
-            SizedBox(height: 10),
+            _buildTextField(estimatedWeightController, "Enter your weight/volume"),
 
-            _buildLabel("Estimated Weight"),
-            _buildTextField(estimatedWeightController, "Enter Estimated Weight"), 
             SizedBox(height: 10),
 
             _buildLabel("Recurring Pickup"),
@@ -110,15 +98,15 @@ class _PickupFormPageState extends State<PickupFormPage> {
                 _buildRadioTile("1 Month"),
                 _buildRadioTile("1 Year"),
                 _buildRadioTile("Other"),
-                _buildTextField(otherRecurringController, "Other"),
+                if (selectedRecurring == "Other") _buildTextField(otherRecurringController, "Specify duration"),
               ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 20),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildButton("Pickup", schedulePickup), // Call API on button press
+                _buildButton("Pickup", schedulePickup),
                 SizedBox(width: 10),
                 _buildButton("Pickup History", () {}),
               ],
@@ -133,7 +121,6 @@ class _PickupFormPageState extends State<PickupFormPage> {
     );
   }
 
-  // Date picker method for better user experience
   Widget _buildDatePicker() {
     return GestureDetector(
       onTap: () async {
@@ -146,7 +133,7 @@ class _PickupFormPageState extends State<PickupFormPage> {
 
         if (selectedDate != null) {
           setState(() {
-            dateController.text = "${selectedDate.toLocal()}".split(' ')[0]; // Formatting the date
+            dateController.text = "${selectedDate.toLocal()}".split(' ')[0];
           });
         }
       },
@@ -188,7 +175,7 @@ class _PickupFormPageState extends State<PickupFormPage> {
       onChanged: (val) => setState(() {
         selectedRecurring = val;
         if (val != "Other") {
-          otherRecurringController.clear(); // Clear text when not "Other"
+          otherRecurringController.clear();
         }
       }),
     );

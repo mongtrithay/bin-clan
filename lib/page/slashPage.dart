@@ -1,7 +1,9 @@
+import 'package:binclan/page/home.dart';
+import 'package:binclan/page/login.dart';
 import 'package:binclan/page/pickup.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:flutter_svg/flutter_svg.dart';
 // Replace with your actual home screen file
 
 class Flater extends StatefulWidget {
@@ -18,7 +20,9 @@ class _FlaterState extends State<Flater> {
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PickupFormPage()), // Navigate to HomeScreen
+        MaterialPageRoute(
+          builder: (context) => Login(),
+        ), // Navigate to HomeScreen
       );
     });
   }
@@ -29,28 +33,23 @@ class _FlaterState extends State<Flater> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            'assets/icons/image5.png',
-            fit: BoxFit.cover,
-          ),
+          Image.asset('assets/icons/image5.png', fit: BoxFit.cover),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   "Saving Company",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
                 ),
                 Image.asset(
-                  'assets/icons/logopig-removebg-preview.png',
+                  'assets/icons/logo.png',
                   width: 390,
                   height: 390,
+                  fit: BoxFit.contain, // Ensures proper scaling
                 ),
               ],
-            )
+            ),
           ),
         ],
       ),

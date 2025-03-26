@@ -5,6 +5,8 @@ import 'package:binclan/models/reward_model.dart';
 import 'package:binclan/models/user_model.dart';
 import 'package:binclan/services/storage_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:binclan/models/pickup_model.dart';
+
 
 class ApiService {
   static const String baseUrl = 'https://pay1.jetdev.life';
@@ -74,6 +76,7 @@ class ApiService {
 
     throw Exception("Failed to fetch points");
   }
+
 
   Future<List<RewardModel>> fetchRewards() async {
     final token = await _storageService.getToken();
