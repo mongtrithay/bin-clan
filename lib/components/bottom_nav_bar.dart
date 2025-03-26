@@ -1,4 +1,5 @@
 import 'package:binclan/page/home.dart';
+import 'package:binclan/page/pickup.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -21,13 +22,16 @@ class BottomNavBar extends StatelessWidget {
             );
             break;
           case 1:
-            Navigator.pushNamed(context, '/pickup-history');
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PickupFormPage()),
+            );
             break;
           case 2:
-            Navigator.pushNamed(context, '/green-social');
+            MaterialPageRoute(builder: (context) => PickupFormPage());
             break;
           case 3:
-            Navigator.pushNamed(context, '/profile');
+            MaterialPageRoute(builder: (context) => PickupFormPage());
             break;
         }
       },
