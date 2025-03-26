@@ -51,21 +51,26 @@ class ApiService {
     }
     return [];
   }
-  Future<List<AccountPoints>> fetchPoints() async {
-    final token = await _storageService.getToken(); // Retrieve token
+
+  Future<AccountPoints> fetchPoints() async {
+    final token = await _storageService.getToken();
+
     if (token == null) {
       throw Exception('Token not found');
     }
 
     final response = await http.get(
       Uri.parse('$baseUrl/api/account/points'),
-      headers: {'Authorization': 'Bearer $token'}, // Use token
+      headers: {'Authorization': 'Bearer $token'},
     );
 
+    print("📊 API Response Body: ${response.body}");
+
     if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => AccountPoints.fromJson(json)).toList();
+      final Map<String, dynamic> jsonData = jsonDecode(response.body);
+      return AccountPoints.fromJson(jsonData); // ✅ Proper JSON parsing
     }
-    return [];
+
+    throw Exception("Failed to fetch points");
   }
 }

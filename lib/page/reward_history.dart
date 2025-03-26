@@ -38,7 +38,7 @@ class RedeemHistoryScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.green),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => Reward(),));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => RewardsScreen(),));
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Back button clicked")),
             );

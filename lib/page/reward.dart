@@ -1,19 +1,26 @@
+import 'package:binclan/controllers/points_controller.dart';
+import 'package:binclan/models/point.dart';
 import 'package:binclan/page/home.dart';
 import 'package:binclan/page/reward_history.dart';
 import 'package:flutter/material.dart';
 
+class RewardsScreen extends StatefulWidget {
+  const RewardsScreen({super.key});
 
-class Reward extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: RewardsScreen(),
-    );
-  }
+  _RewardsScreenState createState() => _RewardsScreenState();
 }
 
-class RewardsScreen extends StatelessWidget {
+class _RewardsScreenState extends State<RewardsScreen> {
+  final PointsController _pointsController = PointsController();
+  late Future<AccountPoints> _pointsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _pointsFuture = _pointsController.fetchPoints();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +28,10 @@ class RewardsScreen extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(),));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
           },
         ),
         actions: [
@@ -30,7 +40,10 @@ class RewardsScreen extends StatelessWidget {
             child: IconButton(
               icon: Icon(Icons.history, color: Colors.black),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp(),));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyApp()),
+                );
               },
             ),
           ),
@@ -53,20 +66,37 @@ class RewardsScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Text(
-                      '1000000',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    FutureBuilder<AccountPoints>(
+                      future: _pointsFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator(color: Colors.white);
+                        } else if (snapshot.hasError) {
+                          return Text(
+                            'Error loading points',
+                            style: TextStyle(color: Colors.white),
+                          );
+                        } else if (!snapshot.hasData) {
+                          return Text(
+                            'No points available',
+                            style: TextStyle(color: Colors.white),
+                          );
+                        }
+
+                        return Text(
+                          '${snapshot.data!.totalPoints}', // Assuming `points` is the field
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        );
+                      },
                     ),
                     Text(
                       'POINT',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
                     ),
                     SizedBox(height: 10),
                     Row(
@@ -81,10 +111,9 @@ class RewardsScreen extends StatelessWidget {
                             ),
                             backgroundColor: Colors.green,
                           ),
-                          child: Text('Cash Out',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                          child: Text(
+                            'Cash Out',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                         SizedBox(width: 10),
@@ -97,10 +126,9 @@ class RewardsScreen extends StatelessWidget {
                             ),
                             backgroundColor: Colors.green,
                           ),
-                          child: Text('Withdraw',
-                          style: TextStyle(
-                            color: Colors.white
-                          ),
+                          child: Text(
+                            'Withdraw',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
@@ -120,18 +148,46 @@ class RewardsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: RewardCard(title: 'Cash Voucher', value: '\$10', points: '500 points', icon: Icons.attach_money)),
+                    Expanded(
+                      child: RewardCard(
+                        title: 'Cash Voucher',
+                        value: '\$10',
+                        points: '500 points',
+                        icon: Icons.attach_money,
+                      ),
+                    ),
                     SizedBox(width: 10),
-                    Expanded(child: RewardCard(title: 'Shopping Discount', value: '20% OFF', points: '1000 points', icon: Icons.shopping_bag)),
+                    Expanded(
+                      child: RewardCard(
+                        title: 'Shopping Discount',
+                        value: '20% OFF',
+                        points: '1000 points',
+                        icon: Icons.shopping_bag,
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: RewardCard(title: 'Free Pickup', value: '1 Service', points: '250 points', icon: Icons.local_shipping)),
+                    Expanded(
+                      child: RewardCard(
+                        title: 'Free Pickup',
+                        value: '1 Service',
+                        points: '250 points',
+                        icon: Icons.local_shipping,
+                      ),
+                    ),
                     SizedBox(width: 10),
-                    Expanded(child: RewardCard(title: 'Gift Box', value: 'Eco-friendly', points: '750 points', icon: Icons.card_giftcard)),
+                    Expanded(
+                      child: RewardCard(
+                        title: 'Gift Box',
+                        value: 'Eco-friendly',
+                        points: '750 points',
+                        icon: Icons.card_giftcard,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -149,7 +205,12 @@ class RewardCard extends StatelessWidget {
   final String points;
   final IconData icon;
 
-  RewardCard({required this.title, required this.value, required this.points, required this.icon});
+  RewardCard({
+    required this.title,
+    required this.value,
+    required this.points,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -159,11 +220,7 @@ class RewardCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            spreadRadius: 1,
-          )
+          BoxShadow(color: Colors.black12, blurRadius: 4, spreadRadius: 1),
         ],
       ),
       child: Column(
@@ -176,18 +233,14 @@ class RewardCard extends StatelessWidget {
           Text(points, style: TextStyle(fontSize: 12)),
           SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () {
-              
-            },
+            onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text('Redeem',
-            style: TextStyle(
-              color: Colors.white,
-            ),
-            ),
+            child: Text('Redeem', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

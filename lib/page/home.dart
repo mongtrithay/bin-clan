@@ -1,5 +1,7 @@
 import 'package:binclan/controllers/activity_controller.dart';
+import 'package:binclan/controllers/points_controller.dart';
 import 'package:binclan/models/activity_model.dart';
+import 'package:binclan/models/point.dart';
 import 'package:binclan/page/activity.dart';
 import 'package:binclan/page/reward.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -16,12 +18,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ActivityController _activityController = ActivityController();
   late Future<List<Activity>> _activities;
+  final PointsController _pointsController = PointsController();
+  late Future<AccountPoints> _pointsFuture;
 
   @override
   void initState() {
     super.initState();
     _activities = _activityController.fetchActivities();
+    _pointsFuture = _pointsController.fetchPoints(); 
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,93 +71,117 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildChartCard() {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FutureBuilder<AccountPoints>(
+      future: _pointsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError ||
+            snapshot.data == null ||
+            snapshot.data!.isEmpty) {
+          return const Center(child: Text("⚠️ Error loading points"));
+        }
+
+        final points = snapshot.data!; // Assuming latest data is needed
+
+        return Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Total",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[200],
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Total",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "Export",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                _buildLegendIndicator(Colors.cyan),
-                const SizedBox(width: 5),
-                const Text("1,200 point"),
-                const SizedBox(width: 15),
-                _buildLegendIndicator(Colors.pink),
-                const SizedBox(width: 5),
-                const Text("500 \$"),
-              ],
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 150,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: false),
-                  titlesData: FlTitlesData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: [
-                        FlSpot(1, 1),
-                        FlSpot(3, 2),
-                        FlSpot(5, 4),
-                        FlSpot(7, 5),
-                        FlSpot(9, 4.8),
-                        FlSpot(11, 5.2),
-                      ],
-                      isCurved: true,
-                      color: Colors.cyan,
-                      dotData: FlDotData(show: false),
-                      barWidth: 3,
-                    ),
-                    LineChartBarData(
-                      spots: [
-                        FlSpot(1, 1.5),
-                        FlSpot(3, 2.5),
-                        FlSpot(5, 3),
-                        FlSpot(7, 4.2),
-                        FlSpot(9, 4.5),
-                        FlSpot(11, 5),
-                      ],
-                      isCurved: true,
-                      color: Colors.pink,
-                      dotData: FlDotData(show: false),
-                      barWidth: 3,
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        "Export",
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    _buildLegendIndicator(Colors.cyan),
+                    const SizedBox(width: 5),
+                    Text(
+                      "${points.totalPoints} points",
+                    ), // ✅ Fetching dynamically
+                    const SizedBox(width: 15),
+                    _buildLegendIndicator(Colors.pink),
+                    const SizedBox(width: 5),
+                    Text(
+                      "\$${points.cashEquivalent.toStringAsFixed(2)}",
+                    ), // ✅ Fetching dynamically
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 150,
+                  child: LineChart(
+                    LineChartData(
+                      gridData: FlGridData(show: false),
+                      titlesData: FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: [
+                            FlSpot(1, points.totalPoints * 0.1),
+                            FlSpot(3, points.totalPoints * 0.2),
+                            FlSpot(5, points.totalPoints * 0.3),
+                            FlSpot(7, points.totalPoints * 0.4),
+                            FlSpot(9, points.totalPoints * 0.5),
+                            FlSpot(11, points.totalPoints * 0.6),
+                          ],
+                          isCurved: true,
+                          color: Colors.cyan,
+                          dotData: FlDotData(show: false),
+                          barWidth: 3,
+                        ),
+                        LineChartBarData(
+                          spots: [
+                            FlSpot(1, points.cashEquivalent * 0.1),
+                            FlSpot(3, points.cashEquivalent * 0.2),
+                            FlSpot(5, points.cashEquivalent * 0.3),
+                            FlSpot(7, points.cashEquivalent * 0.4),
+                            FlSpot(9, points.cashEquivalent * 0.5),
+                            FlSpot(11, points.cashEquivalent * 0.6),
+                          ],
+                          isCurved: true,
+                          color: Colors.pink,
+                          dotData: FlDotData(show: false),
+                          barWidth: 3,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -262,7 +292,10 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("${activity.points}", style: const TextStyle(color: Colors.green)),
+            Text(
+              "${activity.points}",
+              style: const TextStyle(color: Colors.green),
+            ),
             Text(
               timeago.format(activity.createdAt),
               style: const TextStyle(fontSize: 12, color: Colors.grey),
