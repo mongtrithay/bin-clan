@@ -1,5 +1,8 @@
 import 'package:binclan/bloc/user_bloc.dart';
 import 'package:binclan/page/login.dart';
+import 'package:binclan/page/pickup.dart';
+import 'package:binclan/page/pickupHistory.dart';
+import 'package:binclan/page/slashPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,7 +30,7 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: Colors.white,
         ),
         debugShowCheckedModeBanner: false,
-        home: const Login(),
+        home: PickupFormPage(),
       ),
     );
   }
