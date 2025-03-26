@@ -1,5 +1,7 @@
 import 'package:binclan/controllers/points_controller.dart';
+import 'package:binclan/controllers/reward_controller.dart';
 import 'package:binclan/models/point.dart';
+import 'package:binclan/models/reward_model.dart';
 import 'package:binclan/page/home.dart';
 import 'package:binclan/page/reward_history.dart';
 import 'package:flutter/material.dart';
@@ -14,11 +16,14 @@ class RewardsScreen extends StatefulWidget {
 class _RewardsScreenState extends State<RewardsScreen> {
   final PointsController _pointsController = PointsController();
   late Future<AccountPoints> _pointsFuture;
+  final RewardController _rewardController = RewardController();
+  late Future<List<RewardModel>> _rewardFuture;
 
   @override
   void initState() {
     super.initState();
     _pointsFuture = _pointsController.fetchPoints();
+    _rewardFuture = _rewardController.fetchReward();
   }
 
   @override
@@ -143,54 +148,56 @@ class _RewardsScreenState extends State<RewardsScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: RewardCard(
-                        title: 'Cash Voucher',
-                        value: '\$10',
-                        points: '500 points',
-                        icon: Icons.attach_money,
-                      ),
+            FutureBuilder<List<RewardModel>>(
+              future:
+                  _rewardController
+                      .fetchReward(), // Ensure this returns a List<RewardModel>
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(color: Colors.green),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Error loading rewards',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: RewardCard(
-                        title: 'Shopping Discount',
-                        value: '20% OFF',
-                        points: '1000 points',
-                        icon: Icons.shopping_bag,
-                      ),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No rewards available',
+                      style: TextStyle(color: Colors.grey),
                     ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: RewardCard(
-                        title: 'Free Pickup',
-                        value: '1 Service',
-                        points: '250 points',
-                        icon: Icons.local_shipping,
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: RewardCard(
-                        title: 'Gift Box',
-                        value: 'Eco-friendly',
-                        points: '750 points',
-                        icon: Icons.card_giftcard,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  );
+                }
+
+                // If API returns multiple rewards, display them all
+                List<RewardModel> rewards = snapshot.data!;
+
+                return GridView.builder(
+                  shrinkWrap: true, // Prevents infinite height issues
+                  physics:
+                      NeverScrollableScrollPhysics(), // Prevents conflicts with SingleChildScrollView
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Two rewards per row
+                    crossAxisSpacing: 10, // Space between columns
+                    mainAxisSpacing: 10, // Space between rows
+                    childAspectRatio: 0.8, // Adjust size for better spacing
+                  ),
+                  itemCount: rewards.length,
+                  itemBuilder: (context, index) {
+                    final reward = rewards[index];
+                    return RewardCard(
+                      title: reward.title,
+                      value: reward.description,
+                      points: '${reward.exchangePoint} points',
+                      icon: Icons.card_giftcard,
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
@@ -224,23 +231,48 @@ class RewardCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+            MainAxisAlignment.spaceBetween, // Distribute space evenly
         children: [
-          Icon(icon, size: 40, color: Colors.green),
-          SizedBox(height: 5),
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-          Text(value, style: TextStyle(color: Colors.green, fontSize: 16)),
-          Text(points, style: TextStyle(fontSize: 12)),
-          SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          Column(
+            children: [
+              Icon(icon, size: 40, color: Colors.green),
+              SizedBox(height: 8),
+              Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
+              SizedBox(height: 4),
+              Text(
+                value,
+                style: TextStyle(color: Colors.green, fontSize: 16),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 4),
+              Text(
+                points,
+                style: TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          SizedBox(
+            width: double.infinity, // Make button fill available width
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text('Redeem', style: TextStyle(color: Colors.white)),
             ),
-            child: Text('Redeem', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
