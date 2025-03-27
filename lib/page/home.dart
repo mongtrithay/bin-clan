@@ -3,6 +3,7 @@ import 'package:binclan/controllers/points_controller.dart';
 import 'package:binclan/models/activity_model.dart';
 import 'package:binclan/models/point.dart';
 import 'package:binclan/page/activity.dart';
+import 'package:binclan/page/pickup.dart';
 import 'package:binclan/page/reward.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +203,9 @@ class _HomePageState extends State<HomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => PickupFormPage(),));
+          },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           child: const Text(
             "Schedule Pickup",

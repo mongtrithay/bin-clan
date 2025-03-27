@@ -56,7 +56,7 @@ class _PickupHistoryPageState extends State<PickupHistoryPage> {
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 15),
-                      Image.asset('assets/icons/image 7.png', height: 266, width: 306),
+                      Image.asset('assets/icons/image7.png', height: 266, width: 306),
                     ],
                   ),
                 ),
